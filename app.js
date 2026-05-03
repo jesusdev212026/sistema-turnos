@@ -5,14 +5,24 @@ let turnos = [];
 const form = document.getElementById("formTurno");
 const lista = document.getElementById("listaTurnos");
 
-// Función para renderizar la lista
 function renderTurnos() {
-    lista.innerHTML = ""; // limpiar lista
+    lista.innerHTML = "";
 
     turnos.forEach((turno, index) => {
         const li = document.createElement("li");
-        li.textContent = `Turno: ${turno.nombre} - ${turno.fecha}`;
 
+        li.textContent = `Turno: ${turno.nombre} - ${turno.fecha} `;
+
+        // Crear botón eliminar
+        const btnEliminar = document.createElement("button");
+        btnEliminar.textContent = "Eliminar";
+
+        // Evento para eliminar
+        btnEliminar.addEventListener("click", () => {
+            eliminarTurno(index);
+        });
+
+        li.appendChild(btnEliminar);
         lista.appendChild(li);
     });
 }
@@ -32,3 +42,12 @@ form.addEventListener("submit", function(e) {
 
     form.reset();
 });
+
+//llamar a la funcion eliminar
+function eliminarTurno(index) {
+    // Elimina 1 elemento en la posición index
+    turnos.splice(index, 1);
+
+    // Volver a renderizar
+    renderTurnos();
+}
