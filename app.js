@@ -1,24 +1,34 @@
-// Capturar el formulario
-const form = document.getElementById("formTurno");
+// Array para guardar turnos
+let turnos = [];
 
-// Capturar la lista
+// Capturar elementos
+const form = document.getElementById("formTurno");
 const lista = document.getElementById("listaTurnos");
 
-// Evento cuando se envía el formulario
-form.addEventListener("submit", function(e) {
-    e.preventDefault(); // evita recargar la página
+// Función para renderizar la lista
+function renderTurnos() {
+    lista.innerHTML = ""; // limpiar lista
 
-    // Obtener valores
+    turnos.forEach((turno, index) => {
+        const li = document.createElement("li");
+        li.textContent = `Turno: ${turno.nombre} - ${turno.fecha}`;
+
+        lista.appendChild(li);
+    });
+}
+
+// Evento del formulario
+form.addEventListener("submit", function(e) {
+    e.preventDefault();
+
     const nombre = document.getElementById("nombre").value;
     const fecha = document.getElementById("fecha").value;
 
-    // Crear elemento de lista
-    const li = document.createElement("li");
-    li.textContent = `Turno: ${nombre} - ${fecha}`;
+    // Guardar en array
+    turnos.push({ nombre, fecha });
 
-    // Agregar a la lista
-    lista.appendChild(li);
+    // Volver a dibujar la lista
+    renderTurnos();
 
-    // Limpiar formulario
     form.reset();
 });
