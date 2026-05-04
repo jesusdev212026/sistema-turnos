@@ -1,3 +1,5 @@
+
+
 // Array para guardar turnos
 let turnos = [];
 
@@ -5,6 +7,22 @@ let turnos = [];
 const form = document.getElementById("formTurno");
 const lista = document.getElementById("listaTurnos");
 
+//Guardar turnos
+function guardarTurnos() {
+    localStorage.setItem("turnos", JSON.stringify(turnos));
+}
+
+//Cargar turnos
+function cargarTurnos() {
+    const datos = localStorage.getItem("turnos");
+
+    if (datos) {
+        turnos = JSON.parse(datos);
+        renderTurnos();
+    }
+}    
+
+//Armar html con los datos del formulario
 function renderTurnos() {
     lista.innerHTML = "";
 
@@ -27,6 +45,14 @@ function renderTurnos() {
     });
 }
 
+//llamar a la funcion eliminar
+function eliminarTurno(index) {
+    turnos.splice(index, 1);
+    guardarTurnos();
+    renderTurnos();
+}
+
+
 // Evento del formulario
 form.addEventListener("submit", function(e) {
     e.preventDefault();
@@ -34,20 +60,13 @@ form.addEventListener("submit", function(e) {
     const nombre = document.getElementById("nombre").value;
     const fecha = document.getElementById("fecha").value;
 
-    // Guardar en array
     turnos.push({ nombre, fecha });
-
-    // Volver a dibujar la lista
+    guardarTurnos();
     renderTurnos();
 
     form.reset();
-});
+    });
 
-//llamar a la funcion eliminar
-function eliminarTurno(index) {
-    // Elimina 1 elemento en la posición index
-    turnos.splice(index, 1);
 
-    // Volver a renderizar
-    renderTurnos();
-}
+// 🔥 MUY IMPORTANTE
+cargarTurnos();
