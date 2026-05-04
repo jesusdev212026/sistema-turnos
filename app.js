@@ -28,12 +28,14 @@ function renderTurnos() {
 
     turnos.forEach((turno, index) => {
         const li = document.createElement("li");
+              li.className = "list-group-item d-flex justify-content-between align-items-center";
 
         li.textContent = `Turno: ${turno.nombre} - ${turno.fecha} `;
 
         // Crear botón eliminar
         const btnEliminar = document.createElement("button");
         btnEliminar.textContent = "Eliminar";
+        btnEliminar.className = "btn btn-danger btn-sm";
 
         // Evento para eliminar
         btnEliminar.addEventListener("click", () => {
