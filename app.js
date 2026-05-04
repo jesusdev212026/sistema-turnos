@@ -1,39 +1,43 @@
-//variable para editar
+// URL de tu backend
+const API_URL = "http://127.0.0.1:5000/turnos";
+
+// Estado
+let turnos = [];
 let editandoIndex = null;
 
-// Array para guardar turnos
-let turnos = [];
-
-// Capturar elementos
+// Elementos del DOM
 const form = document.getElementById("formTurno");
 const lista = document.getElementById("listaTurnos");
 
-//Guardar turnos
-function guardarTurnos() {
-    localStorage.setItem("turnos", JSON.stringify(turnos));
+// =========================
+// 🔹 CARGAR TURNOS (GET)
+// =========================
+async function cargarTurnos() {
+    try {
+        const response = await fetch(API_URL);
+        turnos = await response.json();
+        renderTurnos();
+    } catch (error) {
+        console.error("Error al cargar turnos:", error);
+    }
 }
 
-//Cargar turnos
-function cargarTurnos() {
-    const datos = localStorage.getItem("turnos");
-
-    if (datos) {
-        turnos = JSON.parse(datos);
-        renderTurnos();
-    }
-}    
-
-//Armar html con los datos del formulario
+// =========================
+// 🔹 RENDERIZAR LISTA
+// =========================
 function renderTurnos() {
     lista.innerHTML = "";
 
     turnos.forEach((turno, index) => {
         const li = document.createElement("li");
-              li.className = "list-group-item d-flex justify-content-between align-items-center";
+        li.className = "list-group-item d-flex justify-content-between align-items-center";
 
-        li.textContent = `Turno: ${turno.nombre} - ${turno.fecha} `;
+        li.textContent = `Turno: ${turno.nombre} - ${turno.fecha}`;
 
-        //Crear botón editar
+        // Contenedor de botones
+        const divBotones = document.createElement("div");
+
+        // Botón editar
         const btnEditar = document.createElement("button");
         btnEditar.textContent = "Editar";
         btnEditar.className = "btn btn-warning btn-sm me-2";
@@ -42,63 +46,92 @@ function renderTurnos() {
             editarTurno(index);
         });
 
-        // Crear botón eliminar
+        // Botón eliminar
         const btnEliminar = document.createElement("button");
         btnEliminar.textContent = "Eliminar";
         btnEliminar.className = "btn btn-danger btn-sm";
 
-        // Evento para eliminar
         btnEliminar.addEventListener("click", () => {
             eliminarTurno(index);
         });
 
-        li.appendChild(btnEditar);
-        li.appendChild(btnEliminar);
+        divBotones.appendChild(btnEditar);
+        divBotones.appendChild(btnEliminar);
+
+        li.appendChild(divBotones);
         lista.appendChild(li);
     });
 }
 
-//llamar a la funcion editar
-function editarTurno(index) {
-    const turno = turnos[index];
-
-    // Llenar formulario
-    document.getElementById("nombre").value = turno.nombre;
-    document.getElementById("fecha").value = turno.fecha;
-
-    // Activar modo edición
-    editandoIndex = index;
-}
-
-//llamar a la funcion eliminar
-function eliminarTurno(index) {
-    turnos.splice(index, 1);
-    guardarTurnos();
-    renderTurnos();
-}
-
-
-// Evento del formulario
-form.addEventListener("submit", function(e) {
+// =========================
+// 🔹 AGREGAR / EDITAR
+// =========================
+form.addEventListener("submit", async function (e) {
     e.preventDefault();
 
     const nombre = document.getElementById("nombre").value;
     const fecha = document.getElementById("fecha").value;
 
-    if (editandoIndex !== null) {
-        // EDITAR
-        turnos[editandoIndex] = { nombre, fecha };
-        editandoIndex = null;
-    } else {
-        // CREAR
-        turnos.push({ nombre, fecha });
-    }
+    try {
+        if (editandoIndex !== null) {
+            // ✏️ EDITAR (PUT)
+            await fetch(`${API_URL}/${editandoIndex}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ nombre, fecha })
+            });
 
-    guardarTurnos();
-    renderTurnos();
-    form.reset();
+            editandoIndex = null;
+        } else {
+            // ➕ CREAR (POST)
+            await fetch(API_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ nombre, fecha })
+            });
+        }
+
+        form.reset();
+        cargarTurnos();
+
+    } catch (error) {
+        console.error("Error al guardar turno:", error);
+    }
 });
 
+// =========================
+// 🔹 EDITAR (llenar form)
+// =========================
+function editarTurno(index) {
+    const turno = turnos[index];
 
-// 🔥 MUY IMPORTANTE
+    document.getElementById("nombre").value = turno.nombre;
+    document.getElementById("fecha").value = turno.fecha;
+
+    editandoIndex = index;
+}
+
+// =========================
+// 🔹 ELIMINAR (DELETE)
+// =========================
+async function eliminarTurno(index) {
+    try {
+        await fetch(`${API_URL}/${index}`, {
+            method: "DELETE"
+        });
+
+        cargarTurnos();
+
+    } catch (error) {
+        console.error("Error al eliminar turno:", error);
+    }
+}
+
+// =========================
+// 🔥 INICIAR APP
+// =========================
 cargarTurnos();
