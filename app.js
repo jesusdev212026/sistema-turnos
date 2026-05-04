@@ -1,4 +1,5 @@
-
+//variable para editar
+let editandoIndex = null;
 
 // Array para guardar turnos
 let turnos = [];
@@ -32,6 +33,15 @@ function renderTurnos() {
 
         li.textContent = `Turno: ${turno.nombre} - ${turno.fecha} `;
 
+        //Crear botón editar
+        const btnEditar = document.createElement("button");
+        btnEditar.textContent = "Editar";
+        btnEditar.className = "btn btn-warning btn-sm me-2";
+
+        btnEditar.addEventListener("click", () => {
+            editarTurno(index);
+        });
+
         // Crear botón eliminar
         const btnEliminar = document.createElement("button");
         btnEliminar.textContent = "Eliminar";
@@ -42,9 +52,22 @@ function renderTurnos() {
             eliminarTurno(index);
         });
 
+        li.appendChild(btnEditar);
         li.appendChild(btnEliminar);
         lista.appendChild(li);
     });
+}
+
+//llamar a la funcion editar
+function editarTurno(index) {
+    const turno = turnos[index];
+
+    // Llenar formulario
+    document.getElementById("nombre").value = turno.nombre;
+    document.getElementById("fecha").value = turno.fecha;
+
+    // Activar modo edición
+    editandoIndex = index;
 }
 
 //llamar a la funcion eliminar
@@ -62,12 +85,19 @@ form.addEventListener("submit", function(e) {
     const nombre = document.getElementById("nombre").value;
     const fecha = document.getElementById("fecha").value;
 
-    turnos.push({ nombre, fecha });
+    if (editandoIndex !== null) {
+        // EDITAR
+        turnos[editandoIndex] = { nombre, fecha };
+        editandoIndex = null;
+    } else {
+        // CREAR
+        turnos.push({ nombre, fecha });
+    }
+
     guardarTurnos();
     renderTurnos();
-
     form.reset();
-    });
+});
 
 
 // 🔥 MUY IMPORTANTE
